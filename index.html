@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora de Áreas y Volúmenes</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #222;
+            transition: background 0.3s, color 0.3s;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        body.dark {
+            background-color: #1e1e1e;
+            color: #e6e6e6;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-size: 18px;
+        }
+
+        input, select, button {
+            margin-top: 5px;
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        #resultado {
+            margin-top: 20px;
+            background: #fff;
+            padding: 15px;
+            border: 1px solid #ccc;
+            white-space: pre-wrap;
+            transition: background 0.3s, color 0.3s;
+            border-radius: 8px;
+        }
+
+        body.dark #resultado {
+            background: #2b2b2b;
+            border-color: #555;
+            color: #e6e6e6;
+        }
+
+        .autor {
+            margin-top: 40px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .modo-btn {
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 18px;
+            background: none;
+            border: 2px solid #888;
+            border-radius: 8px;
+            transition: 0.3s;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .modo-btn:hover {
+            background: #ddd;
+        }
+
+        body.dark .modo-btn:hover {
+            background: #333;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 22px;
+            }
+
+            label {
+                font-size: 16px;
+            }
+
+            input, select, button {
+                font-size: 15px;
+                padding: 8px;
+            }
+
+            .modo-btn {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <button class="modo-btn" id="modoBtn" onclick="toggleModo()">🌙 Modo oscuro</button>
+
+    <h1>Calculadora de Áreas y Volúmenes</h1>
+
+    <label>Tipo de figura:</label>
+    <select id="figura">
+        <option value="cuadrado">Cuadrado</option>
+        <option value="rectangulo">Rectángulo</option>
+        <option value="triangulo">Triángulo</option>
+        <option value="rombo">Rombo</option>
+        <option value="trapecio">Trapecio</option>
+        <option value="circulo">Círculo</option>
+        <option value="esfera">Esfera</option>
+        <option value="cubo">Cubo</option>
+        <option value="paralelepipedo">Paralelepípedo</option>
+        <option value="cilindro">Cilindro</option>
+        <option value="cono">Cono</option>
+    </select>
+
+    <div id="inputs"></div>
+
+    <button onclick="calcular()">Calcular</button>
+
+    <h2>Resultado:</h2>
+    <div id="resultado"></div>
+
+    <div class="autor">
+        Proyecto desarrollado por <strong>Alan Arango</strong>
+    </div>
+
+    <script>
+        function generarInputs(figura) {
+            const cont = document.getElementById("inputs");
+            cont.innerHTML = "";
+
+            const campos = {
+                cuadrado: ["lado"],
+                rectangulo: ["base", "altura"],
+                triangulo: ["base", "altura"],
+                rombo: ["diagonalMayor", "diagonalMenor"],
+                trapecio: ["baseMayor", "baseMenor", "altura", "lado"],
+                circulo: ["radio"],
+                esfera: ["radio"],
+                cubo: ["lado"],
+                paralelepipedo: ["a", "b", "c"],
+                cilindro: ["radio", "altura"],
+                cono: ["radio", "altura"]
+            };
+
+            campos[figura].forEach(campo => {
+                cont.innerHTML += `
+                    <label>${campo}:</label>
+                    <input type="number" id="${campo}" step="any"><br>
+                `;
+            });
+        }
+
+        document.getElementById("figura").addEventListener("change", (e) => {
+            generarInputs(e.target.value);
+        });
+
+        generarInputs("cuadrado");
+
+        function mostrarResultado(obj, formula) {
+            let salida = `Fórmula usada: ${formula}\n\n`;
+            for (let clave in obj) {
+                salida += `${clave.charAt(0).toUpperCase() + clave.slice(1)}: ${obj[clave]}\n`;
+            }
+            document.getElementById("resultado").textContent = salida;
+        }
+
+        function calcular() {
+            const figura = document.getElementById("figura").value;
+            let r = {};
+            let formula = "";
+            const val = id => parseFloat(document.getElementById(id)?.value || 0);
+            const pi = Math.PI;
+
+            switch (figura) {
+                case "cuadrado":
+                    let l = val("lado");
+                    r.area = l * l;
+                    r.perimetro = 4 * l;
+                    formula = "Área = l × l, Perímetro = 4 × l";
+                    break;
+
+                case "rectangulo":
+                    r.area = val("base") * val("altura");
+                    r.perimetro = 2 * (val("base") + val("altura"));
+                    formula = "Área = b × h, Perímetro = 2 × (b + h)";
+                    break;
+
+                case "triangulo":
+                    r.area = (val("base") * val("altura")) / 2;
+                    formula = "Área = (b × h) / 2";
+                    break;
+
+                case "rombo":
+                    r.area = val("diagonalMayor") * val("diagonalMenor");
+                    formula = "Área = D × d";
+                    break;
+
+                case "trapecio":
+                    r.area = val("altura") * (val("baseMayor") + val("baseMenor")) / 2;
+                    r.perimetro = val("baseMayor") + val("baseMenor") + 2 * val("lado");
+                    formula = "Área = h × (B + b) / 2, Perímetro = B + b + 2 × L";
+                    break;
+
+                case "circulo":
+                    r.area = pi * Math.pow(val("radio"), 2);
+                    r.perimetro = 2 * pi * val("radio");
+                    formula = "Área = π × r², Perímetro = 2 × π × r";
+                    break;
+
+                case "esfera":
+                    r.volumen = (4 / 3) * pi * Math.pow(val("radio"), 3);
+                    formula = "Volumen = (4/3) × π × r³";
+                    break;
+
+                case "cubo":
+                    r.volumen = Math.pow(val("lado"), 3);
+                    formula = "Volumen = a³";
+                    break;
+
+                case "paralelepipedo":
+                    r.volumen = val("a") * val("b") * val("c");
+                    formula = "Volumen = a × b × c";
+                    break;
+
+                case "cilindro":
+                    r.volumen = pi * Math.pow(val("radio"), 2) * val("altura");
+                    formula = "Volumen = π × r² × h";
+                    break;
+
+                case "cono":
+                    r.volumen = (pi * Math.pow(val("radio"), 2) * val("altura")) / 3;
+                    formula = "Volumen = (π × r² × h) / 3";
+                    break;
+            }
+
+            mostrarResultado(r, formula);
+        }
+
+        function toggleModo() {
+            const body = document.body;
+            const btn = document.getElementById("modoBtn");
+
+            body.classList.toggle("dark");
+
+            if (body.classList.contains("dark")) {
+                btn.textContent = "☀️ Modo día";
+            } else {
+                btn.textContent = "🌙 Modo oscuro";
+            }
+        }
+    </script>
+
+</body>
+</html>
